@@ -26,6 +26,11 @@ export class ComerciantesController {
     return this.svc.listar();
   }
 
+  @Get('consulta-cnpj/:cnpj')
+  consultarCnpj(@Param('cnpj') cnpj: string) {
+    return this.svc.consultarCnpj(cnpj);
+  }
+
   @Post()
   create(@Body() dto: CriarComercianteDto) {
     return this.svc.create(dto);
