@@ -61,7 +61,7 @@ export class MercadoPagoGateway implements PaymentGateway {
       date_of_expiration: dateOfExpiration,
       notification_url: input.notificationUrl,
       payer: {
-        email: input.payer?.email ?? 'comprador@4pay.local',
+        email: input.payer?.email ?? 'test@testuser.com',
         first_name: input.payer?.nome ?? 'Cliente',
         last_name: input.payer?.sobrenome ?? '4pay',
       },
@@ -74,10 +74,16 @@ export class MercadoPagoGateway implements PaymentGateway {
       });
       return this.toIntent(data, input.internalReference);
     } catch (err: any) {
-      this.logger.error(
-        `MP createPix falhou: ${err?.response?.status} ${JSON.stringify(err?.response?.data)}`,
-      );
-      throw new BadGatewayException('Falha ao criar Pix no Mercado Pago');
+      const status = err?.response?.status;
+      const payload = err?.response?.data;
+      this.logger.error(`MP createPix falhou: ${status} ${JSON.stringify(payload)}`);
+      const detalhe =
+        payload?.message ??
+        payload?.cause?.[0]?.description ??
+        payload?.error ??
+        err?.message ??
+        'erro desconhecido';
+      throw new BadGatewayException(`MP recusou Pix (${status}): ${detalhe}`);
     }
   }
 

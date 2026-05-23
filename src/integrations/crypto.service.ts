@@ -36,10 +36,18 @@ export class CryptoService {
     return dec.toString('utf8');
   }
 
-  /** Mascarar token sensível para exibição (`••••…últimos 8`). */
+  /**
+   * Mascarar token sensível para exibição (`PREFIX-••••…últimos 8`).
+   * O prefixo até o primeiro `-` é exposto porque indica o tipo do token (TEST, APP_USR, etc.).
+   */
   mask(value: string | null | undefined): string | null {
     if (!value) return null;
     if (value.length <= 8) return '••••';
+    const dashIdx = value.indexOf('-');
+    if (dashIdx > 0 && dashIdx < 12) {
+      const prefixo = value.slice(0, dashIdx + 1);
+      return `${prefixo}••••…${value.slice(-8)}`;
+    }
     return `••••…${value.slice(-8)}`;
   }
 }
